@@ -1,0 +1,642 @@
+@tool
+extends CharacterBody3D
+class_name BlockAvatar
+
+# ------------------------------------------------------------------
+# Movimento e animação inspirados no avatar clássico R6.
+# ------------------------------------------------------------------
+
+@export_group("Movement")
+@export var walk_speed: float = 8.5
+@export var ground_acceleration: float = 58.0
+@export var ground_deceleration: float = 82.0
+@export var air_acceleration: float = 14.0
+@export_range(0.1, 50.0, 0.1, "suffix:studs") var jump_height: float = 3.25
+@export var gravity: float = 26.0
+@export var turn_speed: float = 22.0
+@export var walk_cycle_speed: float = 9.0
+@export_range(0.0, 1.2, 0.01) var walk_cycle_angle: float = 0.62
+
+@export_group("Camera")
+@export_range(0.0005, 0.02, 0.0005) var camera_sensitivity: float = 0.003
+@export_range(1.0, 20.0, 0.5, "suffix:studs") var min_zoom: float = 3.0
+@export_range(2.0, 40.0, 0.5, "suffix:studs") var max_zoom: float = 12.0
+@export_range(0.25, 4.0, 0.25, "suffix:studs") var zoom_step: float = 1.0
+@export var camera_smooth_speed: float = 16.0
+@export var shift_lock_offset: Vector3 = Vector3(1.5, 0.0, 0.0)
+@export var shift_lock_key: Key = KEY_SHIFT
+@export var rotation_mode_key: Key = KEY_M
+
+@export_group("Jump Pose")
+@export_range(0.0, 180.0, 1.0) var jump_arm_raise_deg: float = 150.0
+@export_range(0.0, 60.0, 1.0) var jump_arm_spread_deg: float = 22.0
+@export_range(-30.0, 30.0, 1.0) var jump_leg_angle_deg: float = -6.0
+@export var jump_pose_blend_speed: float = 20.0
+@export var landing_pose_duration: float = 0.16
+
+@export_group("Classic Animations")
+@export var animation_blend_speed: float = 15.0
+@export_range(0.0, 8.0, 0.1) var idle_arm_sway_deg: float = 1.5
+@export_range(0.0, 5.0, 0.1) var idle_leg_sway_deg: float = 0.4
+@export_range(0.0, 3.0, 0.1) var idle_body_lean_deg: float = 0.6
+@export var idle_sway_speed: float = 1.8
+
+@export_group("Audio")
+@export var footstep_sound: AudioStream
+@export var jump_sound: AudioStream
+@export var fall_sound: AudioStream
+@export var landing_sound: AudioStream
+@export var sound_volume_db: float = 0.0
+
+@export_group("Avatar Proportions")
+@export var head_size: Vector3 = Vector3(1.08, 1.08, 1.08):
+	set(v):
+		head_size = v
+		_refresh_avatar_in_editor()
+@export var torso_size: Vector3 = Vector3(2.0, 2.0, 1.0):
+	set(v):
+		torso_size = v
+		_refresh_avatar_in_editor()
+@export var left_arm_size: Vector3 = Vector3(0.92, 1.92, 0.92):
+	set(v):
+		left_arm_size = v
+		_refresh_avatar_in_editor()
+@export var right_arm_size: Vector3 = Vector3(0.92, 1.92, 0.92):
+	set(v):
+		right_arm_size = v
+		_refresh_avatar_in_editor()
+@export var left_leg_size: Vector3 = Vector3(0.96, 1.92, 0.96):
+	set(v):
+		left_leg_size = v
+		_refresh_avatar_in_editor()
+@export var right_leg_size: Vector3 = Vector3(0.96, 1.92, 0.96):
+	set(v):
+		right_leg_size = v
+		_refresh_avatar_in_editor()
+
+@export_group("Avatar Colors")
+@export var head_color: Color = Color("f5cd30"):
+	set(v):
+		head_color = v
+		_refresh_avatar_in_editor()
+@export var torso_color: Color = Color("0055bf"):
+	set(v):
+		torso_color = v
+		_refresh_avatar_in_editor()
+@export var arms_color: Color = Color("f5cd30"):
+	set(v):
+		arms_color = v
+		_refresh_avatar_in_editor()
+@export var left_leg_color: Color = Color("00a650"):
+	set(v):
+		left_leg_color = v
+		_refresh_avatar_in_editor()
+@export var right_leg_color: Color = Color("a3a2a5"):
+	set(v):
+		right_leg_color = v
+		_refresh_avatar_in_editor()
+@export var face_color: Color = Color("302b2a"):
+	set(v):
+		face_color = v
+		_refresh_avatar_in_editor()
+
+@onready var _avatar_visual: Node3D = $AvatarVisual
+@onready var _camera_pivot: Node3D = $CameraPivot
+@onready var _spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+
+@onready var _head_mesh: MeshInstance3D = $AvatarVisual/Head
+@onready var _torso_mesh: MeshInstance3D = $AvatarVisual/Torso
+@onready var _left_arm_mesh: MeshInstance3D = $AvatarVisual/LeftArmPivot/LeftArm
+@onready var _right_arm_mesh: MeshInstance3D = $AvatarVisual/RightArmPivot/RightArm
+@onready var _left_leg_mesh: MeshInstance3D = $AvatarVisual/LeftLegPivot/LeftLeg
+@onready var _right_leg_mesh: MeshInstance3D = $AvatarVisual/RightLegPivot/RightLeg
+
+@onready var _left_arm_pivot: Node3D = $AvatarVisual/LeftArmPivot
+@onready var _right_arm_pivot: Node3D = $AvatarVisual/RightArmPivot
+@onready var _left_leg_pivot: Node3D = $AvatarVisual/LeftLegPivot
+@onready var _right_leg_pivot: Node3D = $AvatarVisual/RightLegPivot
+
+enum MotionState {
+	IDLE,
+	WALKING,
+	JUMPING,
+	FALLING,
+	LANDING
+}
+
+var _camera_yaw: float = 0.0
+var _camera_pitch: float = deg_to_rad(-12.0)
+var _target_camera_distance: float = 7.0
+var _walk_phase: float = 0.0
+var _animation_time: float = 0.0
+var _orbiting_camera: bool = false
+var _shift_lock_enabled: bool = false
+var _rotate_with_camera: bool = false
+var _camera_pivot_base_position: Vector3
+
+var _spawn: Node3D = null
+var _initial_spawn_position: Vector3
+var _motion_state: MotionState = MotionState.IDLE
+var _was_on_floor: bool = true
+var _landing_timer: float = 0.0
+
+var _footstep_player: AudioStreamPlayer3D
+var _jump_player: AudioStreamPlayer3D
+var _fall_player: AudioStreamPlayer3D
+var _landing_player: AudioStreamPlayer3D
+
+
+func _ready() -> void:
+	_apply_avatar_customization()
+	if Engine.is_editor_hint():
+		return
+
+	floor_snap_length = 0.12
+	floor_max_angle = deg_to_rad(48.0)
+	floor_stop_on_slope = true
+	safe_margin = 0.03
+
+	_spring_arm.add_excluded_object(get_rid())
+	_target_camera_distance = _spring_arm.spring_length
+	_camera_yaw = _camera_pivot.rotation.y
+	_camera_pitch = _camera_pivot.rotation.x
+	_camera_pivot_base_position = _camera_pivot.position
+	_initial_spawn_position = global_position
+
+	_setup_audio_players()
+
+	_spawn = get_tree().get_first_node_in_group("spawn_location") as Node3D
+	if _spawn != null:
+		global_position = _spawn.global_position
+		_initial_spawn_position = global_position
+
+	_was_on_floor = is_on_floor()
+	set_equipped_tool(0)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if Engine.is_editor_hint():
+		return
+
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == shift_lock_key:
+			_shift_lock_enabled = not _shift_lock_enabled
+			_orbiting_camera = false
+			_update_mouse_mode()
+			get_viewport().set_input_as_handled()
+			return
+
+		if event.keycode == rotation_mode_key:
+			_rotate_with_camera = not _rotate_with_camera
+			get_viewport().set_input_as_handled()
+			return
+
+	# Botão direito orbita a câmera quando o Shift Lock está desligado.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if not _shift_lock_enabled:
+			_orbiting_camera = event.pressed
+			_update_mouse_mode()
+
+	elif event is InputEventMouseMotion:
+		if _shift_lock_enabled or _orbiting_camera:
+			_camera_yaw -= event.relative.x * camera_sensitivity
+			_camera_pitch -= event.relative.y * camera_sensitivity
+			_camera_pitch = clampf(
+				_camera_pitch,
+				deg_to_rad(-65.0),
+				deg_to_rad(25.0)
+			)
+
+	elif event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			_target_camera_distance = maxf(
+				min_zoom,
+				_target_camera_distance - zoom_step
+			)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			_target_camera_distance = minf(
+				max_zoom,
+				_target_camera_distance + zoom_step
+			)
+
+
+func _update_mouse_mode() -> void:
+	if _shift_lock_enabled or _orbiting_camera:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
+	var camera_weight := 1.0 - exp(-camera_smooth_speed * delta)
+	var target_rotation := Vector3(_camera_pitch, _camera_yaw, 0.0)
+
+	_camera_pivot.rotation = _camera_pivot.rotation.lerp(
+		target_rotation,
+		camera_weight
+	)
+	_spring_arm.spring_length = lerpf(
+		_spring_arm.spring_length,
+		_target_camera_distance,
+		camera_weight
+	)
+
+	var target_offset := _camera_pivot_base_position
+	if _shift_lock_enabled:
+		target_offset += shift_lock_offset
+
+	_camera_pivot.position = _camera_pivot.position.lerp(
+		target_offset,
+		camera_weight
+	)
+
+
+func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+
+	var on_floor_before_move := is_on_floor()
+
+	if not on_floor_before_move:
+		velocity.y -= gravity * delta
+	elif velocity.y < 0.0:
+		velocity.y = 0.0
+
+	# Segurar Espaço faz o personagem pular assim que tocar o chão.
+	if on_floor_before_move and Input.is_action_pressed("jump"):
+		velocity.y = sqrt(maxf(0.0, 2.0 * gravity * jump_height))
+		_play_audio(_jump_player)
+
+	var input_vector := Input.get_vector(
+		"move_left",
+		"move_right",
+		"move_forward",
+		"move_back"
+	)
+
+	var flat_forward := Vector3(-sin(_camera_yaw), 0.0, -cos(_camera_yaw))
+	var flat_right := Vector3(cos(_camera_yaw), 0.0, -sin(_camera_yaw))
+	var move_direction := (
+		flat_right * input_vector.x
+		+ flat_forward * -input_vector.y
+	).normalized()
+
+	var horizontal_velocity := Vector3(velocity.x, 0.0, velocity.z)
+	var target_velocity := move_direction * walk_speed
+
+	if on_floor_before_move:
+		var change_rate := (
+			ground_acceleration
+			if move_direction.length_squared() > 0.001
+			else ground_deceleration
+		)
+		horizontal_velocity = horizontal_velocity.move_toward(
+			target_velocity,
+			change_rate * delta
+		)
+	else:
+		horizontal_velocity = horizontal_velocity.move_toward(
+			target_velocity,
+			air_acceleration * delta
+		)
+
+	# Shift Lock ou M ativo: o avatar acompanha a orientação da câmera.
+	if _shift_lock_enabled or _rotate_with_camera:
+		var camera_forward := Vector3(-sin(_camera_yaw), 0.0, -cos(_camera_yaw))
+		var camera_target_yaw := atan2(-camera_forward.x, -camera_forward.z)
+		_avatar_visual.rotation.y = lerp_angle(
+			_avatar_visual.rotation.y,
+			camera_target_yaw,
+			1.0 - exp(-turn_speed * delta)
+		)
+	elif move_direction.length_squared() > 0.001:
+		var target_yaw := atan2(-move_direction.x, -move_direction.z)
+		_avatar_visual.rotation.y = lerp_angle(
+			_avatar_visual.rotation.y,
+			target_yaw,
+			1.0 - exp(-turn_speed * delta)
+		)
+
+	velocity.x = horizontal_velocity.x
+	velocity.z = horizontal_velocity.z
+
+	move_and_slide()
+
+	var on_floor_after_move := is_on_floor()
+	_update_character_animation(delta, on_floor_after_move)
+	_was_on_floor = on_floor_after_move
+
+	var spawn_height: Variant = _get_spawn_respawn_height()
+	if spawn_height != null and global_position.y < float(spawn_height):
+		respawn()
+
+
+func _setup_audio_players() -> void:
+	_footstep_player = _create_audio_player("FootstepAudio", footstep_sound)
+	_jump_player = _create_audio_player("JumpAudio", jump_sound)
+	_fall_player = _create_audio_player("FallAudio", fall_sound)
+	_landing_player = _create_audio_player("LandingAudio", landing_sound)
+
+
+func _create_audio_player(
+	player_name: String,
+	audio_stream: AudioStream
+) -> AudioStreamPlayer3D:
+	var player := AudioStreamPlayer3D.new()
+	player.name = player_name
+	player.stream = audio_stream
+	player.volume_db = sound_volume_db
+	add_child(player)
+	return player
+
+
+func _play_audio(player: AudioStreamPlayer3D) -> void:
+	if player != null and player.stream != null:
+		player.play()
+
+
+func _stop_audio(player: AudioStreamPlayer3D) -> void:
+	if player != null and player.playing:
+		player.stop()
+
+
+func _get_spawn_respawn_height() -> Variant:
+	if _spawn == null:
+		return null
+
+	for property_info in _spawn.get_property_list():
+		if StringName(property_info.get("name", "")) == &"respawn_height":
+			return _spawn.get("respawn_height")
+
+	return null
+
+
+func _apply_avatar_customization() -> void:
+	_apply_part_appearance(_head_mesh, head_size, head_color)
+	_apply_part_appearance(_torso_mesh, torso_size, torso_color)
+	_apply_part_appearance(_left_arm_mesh, left_arm_size, arms_color)
+	_apply_part_appearance(_right_arm_mesh, right_arm_size, arms_color)
+	_apply_part_appearance(_left_leg_mesh, left_leg_size, left_leg_color)
+	_apply_part_appearance(_right_leg_mesh, right_leg_size, right_leg_color)
+
+	var face_node := get_node_or_null("AvatarVisual/Head/Face")
+	if face_node != null:
+		for child in face_node.get_children():
+			if child is MeshInstance3D:
+				_apply_part_color(child as MeshInstance3D, face_color)
+
+
+func _refresh_avatar_in_editor() -> void:
+	if Engine.is_editor_hint() and is_node_ready():
+		_apply_avatar_customization()
+
+
+func _apply_part_appearance(
+	part: MeshInstance3D,
+	size: Vector3,
+	color: Color
+) -> void:
+	if part == null:
+		return
+
+	if part.mesh is BoxMesh:
+		if not part.mesh.is_local_to_scene():
+			part.mesh = part.mesh.duplicate() as BoxMesh
+		(part.mesh as BoxMesh).size = size
+
+	_apply_part_color(part, color)
+
+
+func _apply_part_color(part: MeshInstance3D, color: Color) -> void:
+	if part == null:
+		return
+
+	var mat := part.material_override as StandardMaterial3D
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		part.material_override = mat
+	elif not mat.is_local_to_scene():
+		mat = mat.duplicate() as StandardMaterial3D
+		part.material_override = mat
+
+	mat.albedo_color = color
+
+
+func _update_character_animation(delta: float, on_floor: bool) -> void:
+	_animation_time += delta
+	var blend := 1.0 - exp(-animation_blend_speed * delta)
+
+	if on_floor and not _was_on_floor:
+		_motion_state = MotionState.LANDING
+		_landing_timer = landing_pose_duration
+		_play_audio(_landing_player)
+
+	if not on_floor:
+		_stop_audio(_footstep_player)
+
+		if velocity.y > 0.0:
+			_motion_state = MotionState.JUMPING
+		else:
+			if _motion_state != MotionState.FALLING:
+				_play_audio(_fall_player)
+			_motion_state = MotionState.FALLING
+
+		_apply_air_pose(delta, velocity.y > 0.0)
+		_avatar_visual.rotation.z = lerp_angle(
+			_avatar_visual.rotation.z,
+			0.0,
+			blend
+		)
+		return
+
+	if _motion_state == MotionState.LANDING and _landing_timer > 0.0:
+		_stop_audio(_footstep_player)
+		_landing_timer -= delta
+		_apply_landing_pose(delta)
+		return
+
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var speed_ratio := clampf(
+		horizontal_speed / maxf(walk_speed, 0.001),
+		0.0,
+		1.0
+	)
+
+	if horizontal_speed > 0.25:
+		_motion_state = MotionState.WALKING
+
+		var previous_phase := _walk_phase
+		var cycle_rate := walk_cycle_speed * lerpf(0.65, 1.0, speed_ratio)
+		_walk_phase = fmod(_walk_phase + delta * cycle_rate, TAU)
+
+		# Toca um passo em cada metade do ciclo de caminhada.
+		if _walk_phase < previous_phase or (
+			previous_phase < PI and _walk_phase >= PI
+		):
+			_play_audio(_footstep_player)
+
+		var swing := (
+			sin(_walk_phase)
+			* walk_cycle_angle
+			* clampf(speed_ratio, 0.25, 1.0)
+		)
+
+		_blend_limb_pose(
+			Vector3(swing, 0.0, 0.0),
+			Vector3(-swing, 0.0, 0.0),
+			Vector3(-swing, 0.0, 0.0),
+			Vector3(swing, 0.0, 0.0),
+			blend
+		)
+		_avatar_visual.rotation.z = lerp_angle(
+			_avatar_visual.rotation.z,
+			0.0,
+			blend
+		)
+	else:
+		_motion_state = MotionState.IDLE
+		_stop_audio(_footstep_player)
+		_walk_phase = 0.0
+
+		var sway := sin(_animation_time * idle_sway_speed)
+		var arm_sway := sway * deg_to_rad(idle_arm_sway_deg)
+		var leg_sway := (
+			sin(_animation_time * idle_sway_speed * 0.7)
+			* deg_to_rad(idle_leg_sway_deg)
+		)
+
+		_blend_limb_pose(
+			Vector3(arm_sway, 0.0, 0.0),
+			Vector3(-arm_sway, 0.0, 0.0),
+			Vector3(-leg_sway, 0.0, 0.0),
+			Vector3(leg_sway, 0.0, 0.0),
+			blend
+		)
+
+		var idle_lean := sway * deg_to_rad(idle_body_lean_deg)
+		_avatar_visual.rotation.z = lerp_angle(
+			_avatar_visual.rotation.z,
+			idle_lean,
+			blend
+		)
+
+
+func _apply_air_pose(delta: float, rising: bool) -> void:
+	var raise_angle := clampf(
+		jump_arm_raise_deg - jump_arm_spread_deg,
+		0.0,
+		180.0
+	)
+	var arm_angle := deg_to_rad(raise_angle)
+	var leg_angle := deg_to_rad(jump_leg_angle_deg)
+	var weight := 1.0 - exp(-jump_pose_blend_speed * delta)
+
+	if rising:
+		_blend_limb_pose(
+			Vector3(0.0, 0.0, -arm_angle),
+			Vector3(0.0, 0.0, arm_angle),
+			Vector3(leg_angle, 0.0, 0.0),
+			Vector3(leg_angle, 0.0, 0.0),
+			weight
+		)
+	else:
+		var fall_arm_angle := arm_angle * 0.65
+		_blend_limb_pose(
+			Vector3(0.0, 0.0, -fall_arm_angle),
+			Vector3(0.0, 0.0, fall_arm_angle),
+			Vector3(-leg_angle, 0.0, 0.0),
+			Vector3(-leg_angle, 0.0, 0.0),
+			weight
+		)
+
+
+func _apply_landing_pose(delta: float) -> void:
+	var weight := 1.0 - exp(-jump_pose_blend_speed * delta)
+	var small_bend := deg_to_rad(8.0)
+
+	_blend_limb_pose(
+		Vector3.ZERO,
+		Vector3.ZERO,
+		Vector3(small_bend, 0.0, 0.0),
+		Vector3(small_bend, 0.0, 0.0),
+		weight
+	)
+
+
+func _blend_limb_pose(
+	left_arm_rotation: Vector3,
+	right_arm_rotation: Vector3,
+	left_leg_rotation: Vector3,
+	right_leg_rotation: Vector3,
+	weight: float
+) -> void:
+	if _left_arm_pivot != null:
+		_left_arm_pivot.rotation = _left_arm_pivot.rotation.lerp(
+			left_arm_rotation,
+			weight
+		)
+	if _right_arm_pivot != null:
+		_right_arm_pivot.rotation = _right_arm_pivot.rotation.lerp(
+			right_arm_rotation,
+			weight
+		)
+	if _left_leg_pivot != null:
+		_left_leg_pivot.rotation = _left_leg_pivot.rotation.lerp(
+			left_leg_rotation,
+			weight
+		)
+	if _right_leg_pivot != null:
+		_right_leg_pivot.rotation = _right_leg_pivot.rotation.lerp(
+			right_leg_rotation,
+			weight
+		)
+
+
+func _set_limb_swing(swing: float) -> void:
+	if _left_arm_pivot != null:
+		_left_arm_pivot.rotation = Vector3(swing, 0.0, 0.0)
+	if _right_arm_pivot != null:
+		_right_arm_pivot.rotation = Vector3(-swing, 0.0, 0.0)
+	if _left_leg_pivot != null:
+		_left_leg_pivot.rotation = Vector3(-swing, 0.0, 0.0)
+	if _right_leg_pivot != null:
+		_right_leg_pivot.rotation = Vector3(swing, 0.0, 0.0)
+
+
+func set_equipped_tool(slot_index: int) -> void:
+	var building_tool := get_node_or_null(
+		"AvatarVisual/RightArmPivot/BuildingTool"
+	) as Node3D
+	var delete_tool := get_node_or_null(
+		"AvatarVisual/RightArmPivot/DeleteTool"
+	) as Node3D
+
+	if building_tool != null:
+		building_tool.visible = slot_index == 0
+	if delete_tool != null:
+		delete_tool.visible = slot_index == 1
+
+
+func respawn() -> void:
+	if not is_inside_tree():
+		return
+
+	_spawn = get_tree().get_first_node_in_group("spawn_location") as Node3D
+	global_position = (
+		_spawn.global_position
+		if _spawn != null
+		else _initial_spawn_position
+	)
+
+	velocity = Vector3.ZERO
+	_walk_phase = 0.0
+	_animation_time = 0.0
+	_landing_timer = 0.0
+	_motion_state = MotionState.IDLE
+	_was_on_floor = false
+	_stop_audio(_footstep_player)
+	_avatar_visual.rotation = Vector3.ZERO
+	_set_limb_swing(0.0)
