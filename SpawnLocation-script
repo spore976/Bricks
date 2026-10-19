@@ -1,0 +1,8 @@
+extends Marker3D
+class_name SpawnLocation
+
+## Um spawn explícito permite mudar o ponto inicial sem alterar o controlador.
+@export var respawn_height: float = -24.0
+
+func _ready() -> void:
+	add_to_group("spawn_location")
