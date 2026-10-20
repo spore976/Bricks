@@ -28,21 +28,28 @@
             border: 3px solid #333333;
             box-shadow: 6px 6px 0px #000000;
         }
-        .btn-play {
-            background-color: #00cc00;
-            color: white;
-            padding: 15px 40px;
-            font-size: 1.4em;
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
             font-weight: bold;
             border: none;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
             border-radius: 4px;
-            box-shadow: 0px 4px 0px #008000;
-            margin-top: 20px;
+            margin: 10px;
         }
-        .btn-play:active {
+        .btn-play {
+            background-color: #00cc00;
+            color: white;
+            box-shadow: 0px 4px 0px #008000;
+        }
+        .btn-download {
+            background-color: #0066cc;
+            color: white;
+            box-shadow: 0px 4px 0px #003366;
+        }
+        .btn:active {
             transform: translateY(4px);
             box-shadow: none;
         }
@@ -57,10 +64,13 @@
 
     <div class="container">
         <h2>Pronto para jogar o Obby?</h2>
-        <p>Clique no botão abaixo para abrir o aplicativo do jogo direto no seu computador.</p>
+        <p>Se você já tem o jogo instalado, clique em Jogar. Caso contrário, baixe o instalador primeiro!</p>
         
-        <!-- O link abaixo usa o protocolo personalizado para abrir o aplicativo -->
-        <a href="bricks://launch" class="btn-play">JOGAR</a>
+        <!-- Botão para abrir o jogo via protocolo personalizado -->
+        <a href="bricks://launch" class="btn btn-play">JOGAR</a>
+
+        <!-- Botão com o link direto da sua Release do GitHub -->
+        <a href="https://github.com/spore976/Bricks/releases/download/Versions/Bricks_Setup_v1.exe" class="btn btn-download">BAIXAR INSTALADOR</a>
     </div>
 
 </body>
