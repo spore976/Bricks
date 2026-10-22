@@ -19,8 +19,30 @@
             padding: 20px;
             border-bottom: 4px solid #333333;
         }
+        /* Menu de Navegação Superior (Estilo Roblox Clássico) */
+        .nav-tabs {
+            background-color: #333333;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 3px solid #000000;
+        }
+        .nav-tab {
+            color: #ffffff;
+            background: none;
+            border: none;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+        .nav-tab.active {
+            background-color: #0066cc;
+            border-radius: 4px;
+        }
         .container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 30px auto;
             background-color: #ffffff;
             color: #000000;
@@ -28,8 +50,12 @@
             border: 3px solid #333333;
             box-shadow: 6px 6px 0px #000000;
             text-align: left;
+            display: none;
         }
-        h2 { margin-top: 0; color: #000066; }
+        .container.active {
+            display: block;
+        }
+        h2 { margin-top: 0; color: #000066; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
         .btn {
             padding: 12px 25px;
             font-size: 1.1em;
@@ -60,16 +86,30 @@
             transform: translateY(4px);
             box-shadow: none;
         }
-        .customizer-grid {
+        /* Layout de Customização de Avatar */
+        .avatar-studio {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .avatar-preview {
+            flex: 1;
+            background: #f0f0f0;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            padding: 20px;
+            text-align: center;
+        }
+        .color-controls {
+            flex: 2;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
         }
         .color-group {
-            background: #f0f0f0;
+            background: #f9f9f9;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 4px;
         }
         .color-group label {
@@ -81,7 +121,7 @@
         }
         input[type="color"] {
             width: 100%;
-            height: 40px;
+            height: 35px;
             border: none;
             cursor: pointer;
         }
@@ -97,53 +137,87 @@
 
     <header>
         <h1>BRICKS!</h1>
-        <p>A era clássica dos blocos (2006–2016)[cite: 1, 2]</p>
+        <p>A era clássica dos blocos (2006–2016)</p>
     </header>
 
-    <div class="container">
-        <h2>Customizar Avatar</h2>
-        <p>Escolha as cores clássicas para o seu personagem antes de entrar no jogo:</p>
+    <!-- Menu Superior Estilo Roblox -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="trocarAba(event, 'tab-jogar')">Home / Jogar</button>
+        <button class="nav-tab" onclick="trocarAba(event, 'tab-avatar')">Customizar Avatar</button>
+    </div>
 
-        <div class="customizer-grid">
-            <div class="color-group">
-                <label for="headColor">Cabeça:</label>
-                <input type="color" id="headColor" value="#ffff00">
-            </div>
-            <div class="color-group">
-                <label for="torsoColor">Torso:</label>
-                <input type="color" id="torsoColor" value="#cc0000">
-            </div>
-            <div class="color-group">
-                <label for="leftArmColor">Braço Esquerdo:</label>
-                <input type="color" id="leftArmColor" value="#ffff00">
-            </div>
-            <div class="color-group">
-                <label for="rightArmColor">Braço Direito:</label>
-                <input type="color" id="rightArmColor" value="#ffff00">
-            </div>
-            <div class="color-group">
-                <label for="leftLegColor">Perna Esquerda:</label>
-                <input type="color" id="leftLegColor" value="#009900">
-            </div>
-            <div class="color-group">
-                <label for="rightLegColor">Perna Direita:</label>
-                <input type="color" id="rightLegColor" value="#009900">
-            </div>
-        </div>
-
-        <div style="text-align: center;">
-            <button class="btn btn-save" onclick="salvarCores()">Salvar Cores</button>
-        </div>
-
-        <div class="actions-bar">
-            <!-- O link de JOGAR agora passa as cores personalizadas via URL schema -->
+    <!-- ABA 1: JOGAR E DOWNLOAD -->
+    <div id="tab-jogar" class="container active">
+        <h2>Pronto para jogar o Obby?</h2>
+        <p>Junte-se à aventura nos blocos! Se já instalou o jogo, clique em Jogar. Caso contrário, baixe o instalador.</p>
+        
+        <div style="text-align: center; margin-top: 30px;">
             <a href="#" id="playButton" class="btn btn-play">JOGAR</a>
             <a href="https://github.com/spore976/Bricks/releases/download/Versions/Bricks_Setup_v1.exe" class="btn btn-download">BAIXAR INSTALADOR</a>
         </div>
     </div>
 
+    <!-- ABA 2: CUSTOMIZAR AVATAR -->
+    <div id="tab-avatar" class="container">
+        <h2>Avatar Customizer</h2>
+        <p>Personalize as cores das partes do corpo do seu personagem clássico:</p>
+
+        <div class="avatar-studio">
+            <!-- Pré-visualização Simbólica -->
+            <div class="avatar-preview">
+                <div style="font-size: 4em; margin-bottom: 10px;">👤</div>
+                <strong>Seu Boneco</strong>
+                <p style="font-size: 0.85em; color: #666; margin-top: 5px;">As cores escolhidas serão aplicadas ao iniciar o jogo.</p>
+            </div>
+
+            <!-- Controles de Cores -->
+            <div class="color-controls">
+                <div class="color-group">
+                    <label for="headColor">Cabeça:</label>
+                    <input type="color" id="headColor" value="#ffff00">
+                </div>
+                <div class="color-group">
+                    <label for="torsoColor">Torso:</label>
+                    <input type="color" id="torsoColor" value="#cc0000">
+                </div>
+                <div class="color-group">
+                    <label for="leftArmColor">Braço Esquerdo:</label>
+                    <input type="color" id="leftArmColor" value="#ffff00">
+                </div>
+                <div class="color-group">
+                    <label for="rightArmColor">Braço Direito:</label>
+                    <input type="color" id="rightArmColor" value="#ffff00">
+                </div>
+                <div class="color-group">
+                    <label for="leftLegColor">Perna Esquerda:</label>
+                    <input type="color" id="leftLegColor" value="#009900">
+                </div>
+                <div class="color-group">
+                    <label for="rightLegColor">Perna Direita:</label>
+                    <input type="color" id="rightLegColor" value="#009900">
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-save" onclick="salvarCores()">Salvar Cores do Avatar</button>
+        </div>
+    </div>
+
     <script>
-        // Carrega as cores salvas anteriormente no navegador, se houver
+        // Função para alternar entre as abas do site
+        function trocarAba(evt, tabId) {
+            const containers = document.querySelectorAll('.container');
+            containers.forEach(c => c.classList.remove('active'));
+
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // Carrega as cores salvas e atualiza o link do protocolo ao carregar a página
         window.onload = function() {
             if(localStorage.getItem('headColor')) document.getElementById('headColor').value = localStorage.getItem('headColor');
             if(localStorage.getItem('torsoColor')) document.getElementById('torsoColor').value = localStorage.getItem('torsoColor');
@@ -175,7 +249,6 @@
             const ll = encodeURIComponent(localStorage.getItem('leftLegColor') || '#009900');
             const rl = encodeURIComponent(localStorage.getItem('rightLegColor') || '#009900');
 
-            // Monta a URL customizada do protocolo enviando os parâmetros de cores
             const urlProtocolo = `bricks://launch?head=${h}&torso=${t}&la=${la}&ra=${ra}&ll=${ll}&rl=${rl}`;
             document.getElementById('playButton').href = urlProtocolo;
         }
