@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bricks! - Portal Clássico</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #333333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        /* Barra Superior Clássica do Roblox */
+        .top-bar {
+            background-color: #c90000;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #800000;
+        }
+        .header-logo {
+            max-height: 35px;
+            margin-right: 20px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: none;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Container Principal */
+        .main-wrapper {
+            max-width: 950px;
+            margin: 25px auto;
+            background-color: #e3e3e3;
+            border: 1px solid #b5b5b5;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        /* Banner de Aviso */
+        .welcome-banner {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 3px;
+        }
+        .version-tag {
+            background-color: #ffe8a1;
+            padding: 2px 6px;
+            font-weight: bold;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+
+        /* Abas de Conteúdo */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Layout da Home (Grid) */
+        .home-grid {
+            display: flex;
+            gap: 20px;
+        }
+        .left-column {
+            flex: 2;
+        }
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card do Jogo */
+        .game-card {
+            background: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .game-header {
+            display: flex;
+            gap: 15px;
+        }
+        .game-thumbnail {
+            width: 260px;
+            height: 140px;
+            background: linear-gradient(135deg, #0055ff, #002b80);
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .game-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+            color: #111;
+        }
+        .panel-heading {
+            margin: 0;
+            color: #111;
+            font-size: 1.4em;
+        }
+        .panel-subtitle {
+            margin: 3px 0 0 0;
+            font-size: 0.85em;
+            color: #666;
+        }
+        .game-info p {
+            margin: 5px 0;
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.4;
+        }
+        .game-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Botões Estilizados */
+        .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .btn-play {
+            background-color: #00aa00;
+            color: white;
+            box-shadow: 0px 3px 0px #006600;
+            flex: 1.5;
+        }
+        .btn-download {
+            background-color: #0055cc;
+            color: white;
+            box-shadow: 0px 3px 0px #003380;
+            flex: 1;
+            font-size: 0.9em;
+        }
+        .btn-save {
+            background-color: #00aa00;
+            color: white;
+            box-shadow: 0px 3px 0px #006600;
+        }
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        /* Widgets Laterais */
+        .widget {
+            background: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .widget-title {
+            font-weight: bold;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .widget-title a {
+            font-size: 0.8em;
+            color: #0055cc;
+            text-decoration: none;
+        }
+        .avatar-preview-mini {
+            text-align: center;
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .mini-char {
+            display: inline-block;
+            width: 30px;
+        }
+        .mini-head { width: 20px; height: 20px; background: #ffff00; border: 1px solid #333; border-radius: 50%; margin: 0 auto 2px; }
+        .mini-torso { width: 26px; height: 26px; background: #cc0000; border: 1px solid #333; margin: 0 auto; }
+        .mini-legs { width: 26px; height: 20px; background: #009900; border: 1px solid #333; margin: 2px auto 0; }
+
+        /* Aba de Customização de Avatar (Estilo Foto 2) */
+        .customizer-layout {
+            display: flex;
+            gap: 20px;
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .customizer-left {
+            flex: 1;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .customizer-right {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .color-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        .color-row label {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .presets-box {
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .preset-btn {
+            background: #e0e0e0;
+            border: 1px solid #adadad;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        .preset-btn:hover { background: #d0d0d0; }
+
+        /* Desenho do Boneco Grande na Customização */
+        .char-model-large {
+            display: inline-block;
+            margin: 15px auto;
+        }
+        .char-head-l { width: 50px; height: 50px; background: #ffff00; border-radius: 50%; margin: 0 auto 4px; border: 2px solid #333; position: relative; }
+        .char-head-l::after { content: "‿"; position: absolute; top: 11px; left: 14px; font-size: 20px; font-weight: bold; }
+        .char-mid-l { display: flex; justify-content: center; gap: 4px; }
+        .char-arm-l { width: 24px; height: 70px; background: #ffff00; border: 2px solid #333; border-radius: 3px; }
+        .char-torso-l { width: 56px; height: 70px; background: #cc0000; border: 2px solid #333; border-radius: 3px; }
+        .char-legs-l { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
+        .char-leg-l { width: 26px; height: 70px; background: #009900; border: 2px solid #333; border-radius: 3px; }
+
+        /* ===== Aba de Configurações ===== */
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+        .settings-row label {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .settings-row select {
+            padding: 5px 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            font-size: 0.9em;
+        }
+        /* Switch (toggle) do modo escuro */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background-color: #ccc;
+            transition: 0.2s;
+            border-radius: 24px;
+        }
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.2s;
+            border-radius: 50%;
+        }
+        .switch input:checked + .slider { background-color: #00aa00; }
+        .switch input:checked + .slider::before { transform: translateX(22px); }
+
+        /* ===== Modo Escuro ===== */
+        body.dark-mode { background-color: #000000; }
+        body.dark-mode .main-wrapper { background-color: #1e1e1e; border-color: #333; }
+        body.dark-mode .game-card,
+        body.dark-mode .widget,
+        body.dark-mode .customizer-layout,
+        body.dark-mode .settings-row {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        body.dark-mode .game-info h2,
+        body.dark-mode .panel-heading { color: #f5f5f5; }
+        body.dark-mode .game-info p,
+        body.dark-mode .panel-subtitle,
+        body.dark-mode .widget-title a { color: #aaaaaa; }
+        body.dark-mode .color-row,
+        body.dark-mode .customizer-left {
+            background: #333333;
+            border-color: #555555;
+        }
+        body.dark-mode .color-row label,
+        body.dark-mode .settings-row label { color: #e0e0e0; }
+        body.dark-mode .welcome-banner {
+            background-color: #4a3b00;
+            border-color: #6b5700;
+            color: #ffe8a1;
+        }
+        body.dark-mode #protocolPreview {
+            background: #111111;
+            color: #33ff33;
+            border-color: #444444;
+        }
+        body.dark-mode .preset-btn,
+        body.dark-mode .settings-row select {
+            background: #444444;
+            border-color: #666666;
+            color: #eeeeee;
+        }
+        body.dark-mode .preset-btn:hover { background: #555555; }
+
+        /* ===== Animações (desligáveis via Settings) ===== */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        body:not(.no-animations) .tab-content.active {
+            animation: fadeInUp 0.25s ease;
+        }
+        body:not(.no-animations) .nav-link,
+        body:not(.no-animations) .btn,
+        body:not(.no-animations) .preset-btn,
+        body:not(.no-animations) .slider,
+        body:not(.no-animations) .slider::before {
+            transition: all 0.2s ease;
+        }
+        body.no-animations .tab-content.active,
+        body.no-animations .nav-link,
+        body.no-animations .btn,
+        body.no-animations .preset-btn,
+        body.no-animations .slider,
+        body.no-animations .slider::before {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        /* ===== Notificações (toasts, desligáveis via Settings) ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            background: #00aa00;
+            color: #ffffff;
+            padding: 10px 16px;
+            border-radius: 4px;
+            box-shadow: 0px 3px 10px rgba(0,0,0,0.3);
+            font-size: 0.9em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            max-width: 280px;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        body.dark-mode .toast { box-shadow: 0px 3px 10px rgba(0,0,0,0.6); }
+    </style>
+</head>
+<body>
+
+    <!-- Barra Superior Clássica do Roblox -->
+    <div class="top-bar">
+        <img src="logo.png" alt="Bricks!" class="header-logo" onerror="this.style.display='none'">
+        <div class="nav-links">
+            <button class="nav-link active" onclick="mudarAba(event, 'home-tab')" data-i18n="nav-games">Games</button>
+            <button class="nav-link" onclick="mudarAba(event, 'avatar-tab')" data-i18n="nav-avatar">Catalog & Avatar</button>
+            <button class="nav-link" onclick="mudarAba(event, 'settings-tab')" data-i18n="nav-settings">Settings</button>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+
+        <!-- Banner de Boas-vindas -->
+        <div class="welcome-banner">
+            <span data-i18n-html="banner-text"><strong>Welcome to Bricks! (Classic Era Portal)</strong> — Launch the Godot client directly from your browser.</span>
+            <span class="version-tag">v1.0.0</span>
+        </div>
+
+        <!-- ================= ABA 1: GAMES (HOME) ================= -->
+        <div id="home-tab" class="tab-content active">
+            <div class="home-grid">
+                
+                <!-- Coluna Esquerda: Jogo Principal -->
+                <div class="left-column">
+                    <div class="game-card">
+                        <div class="game-header">
+                            <div class="game-thumbnail">
+                                <span style="font-size: 2.2em;">🧱</span>
+                                <span style="font-size: 1.1em; margin-top: 5px;">CLASSIC OBBY</span>
+                                <span style="font-size: 0.75em; opacity: 0.8;">By Spore</span>
+                            </div>
+                            <div class="game-info">
+                                <h2>Classic Obby World</h2>
+                                <p><strong>Created:</strong> 10/2026 | <strong>Genre:</strong> Adventure | <strong>Visited:</strong> 1,337 times</p>
+                                <p>Relive the classic era of block building and obbies! Dodge kill blocks, reach checkpoints, and build structures using classic toolbar items.</p>
+                            </div>
+                        </div>
+                        <div class="game-actions">
+                            <a href="#" id="playButton" class="btn btn-play" data-i18n="play-btn">▶ PLAY IN APP</a>
+                            <a href="https://github.com/spore976/Bricks/releases/download/Version_0.2/Bricks_Setup_v0.15.exe" class="btn btn-download" data-i18n="download-btn">💾 Download Client</a>
+                        </div>
+                    </div>
+
+                    <!-- Atualizações do Jogo -->
+                    <div class="widget">
+                        <div class="widget-title" data-i18n="game-updates-title">Game Updates</div>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.85em; color: #444; line-height: 1.5;">
+                            <li>Added custom browser URI protocol handling (<code>bricks://</code>).</li>
+                            <li>Real-time Avatar customization synchronization with Godot engine.</li>
+                            <li>Classic Obby blocks & KillBlock scripts configured.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Meu Personagem & Info -->
+                <div class="right-column">
+                    <div class="widget">
+                        <div class="widget-title">
+                            <span data-i18n="my-character-title">My Character</span>
+                            <a href="#" onclick="mudarAba(event, 'avatar-tab')" data-i18n="edit-link">Edit</a>
+                        </div>
+                        <div class="avatar-preview-box" style="display: flex; align-items: center; gap: 15px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <div class="mini-char">
+                                <div id="miniHead" class="mini-head"></div>
+                                <div class="mini-torso" id="miniTorso"></div>
+                                <div class="mini-legs" id="miniLegs"></div>
+                            </div>
+                            <div style="font-size: 0.85em;">
+                                <span style="color: #00aa00; font-weight: bold;">● Status: Online</span><br>
+                                <span style="color: #555;">Avatar Sync: <b>Active</b></span><br>
+                                <button onclick="mudarAba(event, 'avatar-tab')" class="preset-btn" style="margin-top: 5px;" data-i18n="customize-color-btn">Customize Color</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <div class="widget-title" data-i18n="client-connection-title">Client Connection Info</div>
+                        <p style="font-size: 0.8em; color: #666; margin: 0 0 8px 0;" data-i18n-html="protocol-desc">Clicking <b>PLAY</b> uses protocol scheme:</p>
+                        <code id="protocolPreview" style="display: block; background: #eee; padding: 6px; font-size: 0.7em; word-break: break-all; border: 1px solid #ccc; border-radius: 3px;">bricks://launch...</code>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= ABA 2: CATALOG & AVATAR ================= -->
+        <div id="avatar-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div>
+                    <h2 class="panel-heading" data-i18n="avatar-title">Character Customization</h2>
+                    <p class="panel-subtitle" data-i18n="avatar-subtitle">Change your body colors to sync with the in-game classic avatar.</p>
+                </div>
+                <button class="btn btn-save" onclick="salvarCoresAvatar()" data-i18n="save-avatar-btn">Save Avatar Colors</button>
+            </div>
+
+            <div class="customizer-layout">
+                <!-- Esquerda: Prévia em tempo real -->
+                <div class="customizer-left">
+                    <span style="font-weight: bold; font-size: 0.85em; color: #555; text-transform: uppercase; letter-spacing: 1px;" data-i18n="live-preview-label">Live Preview</span>
+                    <div>
+                        <div class="char-model-large">
+                            <div id="previewHeadL" class="char-head-l"></div>
+                            <div class="char-mid-l">
+                                <div id="previewLeftArmL" class="char-arm-l"></div>
+                                <div id="previewTorsoL" class="char-torso-l"></div>
+                                <div id="previewRightArmL" class="char-arm-l"></div>
+                            </div>
+                            <div class="char-legs-l">
+                                <div id="previewLeftLegL" class="char-leg-l"></div>
+                                <div id="previewRightLegL" class="char-leg-l"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.75em; color: #666; margin: 5px 0 0 0;" data-i18n="live-preview-note">Changes appear immediately in-game when launching from the portal.</p>
+                </div>
+
+                <!-- Direita: Seletores de Cores e Presets -->
+                <div class="customizer-right">
+                    <div style="font-weight: bold; font-size: 0.95em; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 5px;" data-i18n="body-part-colors-label">Body Part Colors</div>
+                    
+                    <div class="color-row">
+                        <label for="headColor" data-i18n="head-color-label">Head Color:</label>
+                        <input type="color" id="headColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="torsoColor" data-i18n="torso-color-label">Torso Color:</label>
+                        <input type="color" id="torsoColor" value="#cc0000" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="leftArmColor" data-i18n="left-arm-color-label">Left Arm Color:</label>
+                        <input type="color" id="leftArmColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="rightArmColor" data-i18n="right-arm-color-label">Right Arm Color:</label>
+                        <input type="color" id="rightArmColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="leftLegColor" data-i18n="left-leg-color-label">Left Leg Color:</label>
+                        <input type="color" id="leftLegColor" value="#009900" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="rightLegColor" data-i18n="right-leg-color-label">Right Leg Color:</label>
+                        <input type="color" id="rightLegColor" value="#009900" oninput="atualizarCoresSite()">
+                    </div>
+
+                    <div class="presets-box">
+                        <span style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 5px;" data-i18n="presets-label">Classic Palette Presets:</span>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffff00', '#cc0000', '#ffff00', '#ffff00', '#009900', '#009900')" data-i18n="preset-2006">2006 Classic</button>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffcc00', '#0066cc', '#ffcc00', '#ffcc00', '#222222', '#222222')" data-i18n="preset-blue">Blue Casual</button>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffeedd', '#2e7d32', '#ffeedd', '#ffeedd', '#1565c0', '#1565c0')" data-i18n="preset-green">Green Outdoor</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ABA 3: SETTINGS ================= -->
+        <div id="settings-tab" class="tab-content">
+            <div style="margin-bottom: 15px;">
+                <h2 class="panel-heading" data-i18n="settings-title">Settings</h2>
+                <p class="panel-subtitle" data-i18n="settings-subtitle">Customize your portal experience.</p>
+            </div>
+
+            <div class="settings-row">
+                <label for="languageSelect" data-i18n="language-label">Language</label>
+                <select id="languageSelect" onchange="mudarIdioma(this.value)">
+                    <option value="en">English</option>
+                    <option value="pt">Português</option>
+                </select>
+            </div>
+
+            <div class="settings-row">
+                <label for="darkModeToggle" data-i18n="dark-mode-label">Dark Mode</label>
+                <label class="switch">
+                    <input type="checkbox" id="darkModeToggle" onchange="alternarModoEscuro(this.checked, true)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <label for="soundToggle" data-i18n="sound-label">Sound Effects</label>
+                <label class="switch">
+                    <input type="checkbox" id="soundToggle" onchange="tocarSom(520, 0.07)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <label for="animationsToggle" data-i18n="animations-label">Animations</label>
+                <label class="switch">
+                    <input type="checkbox" id="animationsToggle" checked onchange="alternarAnimacoes(this.checked, true)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <label for="notificationsToggle" data-i18n="notifications-label">Notifications</label>
+                <label class="switch">
+                    <input type="checkbox" id="notificationsToggle" checked onchange="tocarSom(450, 0.05)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="btn btn-save" onclick="salvarPreferencias()" data-i18n="save-settings-btn">Save Preferences</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ===== Sistema de Idiomas =====
+        const TRADUCOES = {
+            en: {
+                'nav-games': 'Games',
+                'nav-avatar': 'Catalog & Avatar',
+                'nav-settings': 'Settings',
+                'banner-text': '<strong>Welcome to Bricks! (Classic Era Portal)</strong> — Launch the Godot client directly from your browser.',
+                'game-updates-title': 'Game Updates',
+                'my-character-title': 'My Character',
+                'edit-link': 'Edit',
+                'customize-color-btn': 'Customize Color',
+                'client-connection-title': 'Client Connection Info',
+                'protocol-desc': 'Clicking <b>PLAY</b> uses protocol scheme:',
+                'play-btn': '▶ PLAY IN APP',
+                'download-btn': '💾 Download Client',
+                'avatar-title': 'Character Customization',
+                'avatar-subtitle': 'Change your body colors to sync with the in-game classic avatar.',
+                'save-avatar-btn': 'Save Avatar Colors',
+                'live-preview-label': 'Live Preview',
+                'live-preview-note': 'Changes appear immediately in-game when launching from the portal.',
+                'body-part-colors-label': 'Body Part Colors',
+                'head-color-label': 'Head Color:',
+                'torso-color-label': 'Torso Color:',
+                'left-arm-color-label': 'Left Arm Color:',
+                'right-arm-color-label': 'Right Arm Color:',
+                'left-leg-color-label': 'Left Leg Color:',
+                'right-leg-color-label': 'Right Leg Color:',
+                'presets-label': 'Classic Palette Presets:',
+                'preset-2006': '2006 Classic',
+                'preset-blue': 'Blue Casual',
+                'preset-green': 'Green Outdoor',
+                'settings-title': 'Settings',
+                'settings-subtitle': 'Customize your portal experience.',
+                'language-label': 'Language',
+                'dark-mode-label': 'Dark Mode',
+                'sound-label': 'Sound Effects',
+                'animations-label': 'Animations',
+                'notifications-label': 'Notifications',
+                'save-settings-btn': 'Save Preferences',
+                'notif-avatar-saved': 'Avatar colors saved! Ready to launch in-game.',
+                'notif-prefs-saved': 'Preferences saved successfully!'
+            },
+            pt: {
+                'nav-games': 'Jogos',
+                'nav-avatar': 'Catálogo & Avatar',
+                'nav-settings': 'Configurações',
+                'banner-text': '<strong>Bem-vindo ao Bricks! (Portal da Era Clássica)</strong> — Inicie o cliente Godot direto pelo navegador.',
+                'game-updates-title': 'Atualizações do Jogo',
+                'my-character-title': 'Meu Personagem',
+                'edit-link': 'Editar',
+                'customize-color-btn': 'Personalizar Cor',
+                'client-connection-title': 'Informações de Conexão',
+                'protocol-desc': 'Clicar em <b>JOGAR</b> usa o protocolo:',
+                'play-btn': '▶ JOGAR NO APP',
+                'download-btn': '💾 Baixar Cliente',
+                'avatar-title': 'Personalização do Personagem',
+                'avatar-subtitle': 'Mude as cores do corpo para sincronizar com o avatar clássico no jogo.',
+                'save-avatar-btn': 'Salvar Cores do Avatar',
+                'live-preview-label': 'Prévia em Tempo Real',
+                'live-preview-note': 'As mudanças aparecem imediatamente no jogo ao lançar pelo portal.',
+                'body-part-colors-label': 'Cores das Partes do Corpo',
+                'head-color-label': 'Cor da Cabeça:',
+                'torso-color-label': 'Cor do Tronco:',
+                'left-arm-color-label': 'Cor do Braço Esquerdo:',
+                'right-arm-color-label': 'Cor do Braço Direito:',
+                'left-leg-color-label': 'Cor da Perna Esquerda:',
+                'right-leg-color-label': 'Cor da Perna Direita:',
+                'presets-label': 'Paletas Clássicas Predefinidas:',
+                'preset-2006': 'Clássico 2006',
+                'preset-blue': 'Casual Azul',
+                'preset-green': 'Verde Externo',
+                'settings-title': 'Configurações',
+                'settings-subtitle': 'Personalize sua experiência no portal.',
+                'language-label': 'Idioma',
+                'dark-mode-label': 'Modo Escuro',
+                'sound-label': 'Efeitos Sonoros',
+                'animations-label': 'Animações',
+                'notifications-label': 'Notificações',
+                'save-settings-btn': 'Salvar Preferências',
+                'notif-avatar-saved': 'Cores do avatar salvas! Pronto para jogar.',
+                'notif-prefs-saved': 'Preferências salvas com sucesso!'
+            }
+        };
+
+        // Retorna o dicionário do idioma atualmente selecionado
+        function obterDicionarioAtual() {
+            const sel = document.getElementById('languageSelect');
+            const lang = sel ? sel.value : 'en';
+            return TRADUCOES[lang] || TRADUCOES.en;
+        }
+
+        // Aplica o idioma atual a todos os elementos marcados com data-i18n / data-i18n-html
+        function aplicarIdioma(lang) {
+            const dict = TRADUCOES[lang] || TRADUCOES.en;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const chave = el.getAttribute('data-i18n');
+                if (dict[chave]) el.textContent = dict[chave];
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const chave = el.getAttribute('data-i18n-html');
+                if (dict[chave]) el.innerHTML = dict[chave];
+            });
+
+            document.documentElement.lang = (lang === 'pt') ? 'pt-BR' : 'en';
+            setEl('languageSelect', el => el.value = lang);
+        }
+
+        // Chamado pelo <select> de idioma na aba de Configurações
+        function mudarIdioma(lang) {
+            aplicarIdioma(lang);
+        }
+
+        // Liga/desliga o modo escuro. tocarEfeito=true só quando acionado pelo usuário (não no carregamento da página)
+        function alternarModoEscuro(ativado, tocarEfeito) {
+            document.body.classList.toggle('dark-mode', ativado);
+            setEl('darkModeToggle', el => el.checked = ativado);
+            if (tocarEfeito) tocarSom(ativado ? 380 : 320, 0.06);
+        }
+
+        // Liga/desliga as animações e transições da interface. tocarEfeito=true só quando acionado pelo usuário
+        function alternarAnimacoes(ativado, tocarEfeito) {
+            document.body.classList.toggle('no-animations', !ativado);
+            setEl('animationsToggle', el => el.checked = ativado);
+            if (tocarEfeito) tocarSom(ativado ? 480 : 300, 0.05);
+        }
+
+        // ===== Efeitos Sonoros (gerados via Web Audio API, sem arquivos externos) =====
+        let audioCtx = null;
+        function tocarSom(freq, duracao) {
+            freq = freq || 440;
+            duracao = duracao || 0.08;
+            const somEl = document.getElementById('soundToggle');
+            const ativado = somEl ? somEl.checked : false;
+            if (!ativado) return;
+
+            try {
+                audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duracao);
+                osc.connect(gain).connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duracao);
+            } catch (e) {
+                console.warn('Efeitos sonoros indisponíveis neste navegador:', e);
+            }
+        }
+
+        // ===== Notificações (toasts) — respeitam o toggle de Notifications =====
+        function mostrarNotificacao(mensagem) {
+            const notifEl = document.getElementById('notificationsToggle');
+            const ativado = notifEl ? notifEl.checked : true;
+            if (!ativado) return;
+
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = mensagem;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Salva todas as preferências no navegador (com proteção contra localStorage bloqueado)
+        function salvarPreferencias() {
+            const lang = document.getElementById('languageSelect').value;
+            const escuro = document.getElementById('darkModeToggle').checked;
+            const som = document.getElementById('soundToggle').checked;
+            const anim = document.getElementById('animationsToggle').checked;
+            const notif = document.getElementById('notificationsToggle').checked;
+
+            try {
+                localStorage.setItem('bricksLang', lang);
+                localStorage.setItem('bricksDarkMode', escuro ? '1' : '0');
+                localStorage.setItem('bricksSound', som ? '1' : '0');
+                localStorage.setItem('bricksAnimations', anim ? '1' : '0');
+                localStorage.setItem('bricksNotifications', notif ? '1' : '0');
+            } catch (e) {
+                console.warn('Não foi possível salvar as preferências no localStorage:', e);
+            }
+
+            tocarSom(620, 0.1);
+            mostrarNotificacao(obterDicionarioAtual()['notif-prefs-saved']);
+        }
+
+        // Sistema de Abas
+        function mudarAba(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (!targetTab) return;
+            targetTab.classList.add('active');
+
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            } else {
+                // Se chamado por link interno, ativa a aba correspondente (se existir)
+                const navBtn = document.querySelector(`button[onclick*="${tabId}"]`);
+                if (navBtn) navBtn.classList.add('active');
+            }
+            tocarSom(350, 0.04);
+        }
+
+        // Pequeno helper para nunca travar se um elemento não existir no DOM
+        function setEl(id, fn) {
+            const el = document.getElementById(id);
+            if (el) fn(el);
+        }
+
+        // Atualizar cores da prévia e do protocolo em tempo real
+        function atualizarCoresSite() {
+            const campos = ['headColor', 'torsoColor', 'leftArmColor', 'rightArmColor', 'leftLegColor', 'rightLegColor'];
+            if (campos.some(id => !document.getElementById(id))) return; // inputs ainda não existem nesta aba
+
+            const h = document.getElementById('headColor').value;
+            const t = document.getElementById('torsoColor').value;
+            const la = document.getElementById('leftArmColor').value;
+            const ra = document.getElementById('rightArmColor').value;
+            const ll = document.getElementById('leftLegColor').value;
+            const rl = document.getElementById('rightLegColor').value;
+
+            // Atualiza prévia grande
+            setEl('previewHeadL', el => el.style.backgroundColor = h);
+            setEl('previewTorsoL', el => el.style.backgroundColor = t);
+            setEl('previewLeftArmL', el => el.style.backgroundColor = la);
+            setEl('previewRightArmL', el => el.style.backgroundColor = ra);
+            setEl('previewLeftLegL', el => el.style.backgroundColor = ll);
+            setEl('previewRightLegL', el => el.style.backgroundColor = rl);
+
+            // Atualiza prévia miniatura (Home)
+            setEl('miniHead', el => el.style.backgroundColor = h);
+            setEl('miniTorso', el => el.style.backgroundColor = t);
+            setEl('miniLegs', el => el.style.backgroundColor = ll);
+
+            // Atualiza o link do protocolo PLAY
+            const urlProtocolo = `bricks://launch?head=${encodeURIComponent(h)}&torso=${encodeURIComponent(t)}&la=${encodeURIComponent(la)}&ra=${encodeURIComponent(ra)}&ll=${encodeURIComponent(ll)}&rl=${encodeURIComponent(rl)}`;
+            setEl('playButton', el => el.href = urlProtocolo);
+            setEl('protocolPreview', el => el.innerText = urlProtocolo);
+        }
+
+        // Aplicar Presets rápidos
+        function aplicarPreset(h, t, la, ra, ll, rl) {
+            document.getElementById('headColor').value = h;
+            document.getElementById('torsoColor').value = t;
+            document.getElementById('leftArmColor').value = la;
+            document.getElementById('rightArmColor').value = ra;
+            document.getElementById('leftLegColor').value = ll;
+            document.getElementById('rightLegColor').value = rl;
+            atualizarCoresSite();
+            tocarSom(500, 0.05);
+        }
+
+        // Salvar no navegador (com proteção caso localStorage esteja bloqueado)
+        function salvarCoresAvatar() {
+            try {
+                localStorage.setItem('headColor', document.getElementById('headColor').value);
+                localStorage.setItem('torsoColor', document.getElementById('torsoColor').value);
+                localStorage.setItem('leftArmColor', document.getElementById('leftArmColor').value);
+                localStorage.setItem('rightArmColor', document.getElementById('rightArmColor').value);
+                localStorage.setItem('leftLegColor', document.getElementById('leftLegColor').value);
+                localStorage.setItem('rightLegColor', document.getElementById('rightLegColor').value);
+            } catch (e) {
+                console.warn('Não foi possível salvar no localStorage:', e);
+            }
+
+            atualizarCoresSite();
+            tocarSom(620, 0.1);
+            mostrarNotificacao(obterDicionarioAtual()['notif-avatar-saved']);
+        }
+
+        // Carregar ao iniciar a página (com proteção caso localStorage esteja bloqueado)
+        window.onload = function() {
+            try {
+                const campos = ['headColor', 'torsoColor', 'leftArmColor', 'rightArmColor', 'leftLegColor', 'rightLegColor'];
+                campos.forEach(id => {
+                    const salvo = localStorage.getItem(id);
+                    const el = document.getElementById(id);
+                    if (salvo && el) el.value = salvo;
+                });
+            } catch (e) {
+                console.warn('Não foi possível ler o localStorage:', e);
+            }
+
+            atualizarCoresSite();
+
+            // Aplica preferências salvas (padrões: inglês, modo claro, som desligado, animações e notificações ligadas)
+            let langSalvo = 'en';
+            let escuroSalvo = false;
+            let somSalvo = false;
+            let animSalvo = true;
+            let notifSalvo = true;
+            try {
+                langSalvo = localStorage.getItem('bricksLang') || 'en';
+                escuroSalvo = localStorage.getItem('bricksDarkMode') === '1';
+                somSalvo = localStorage.getItem('bricksSound') === '1';
+                animSalvo = localStorage.getItem('bricksAnimations') !== '0';
+                notifSalvo = localStorage.getItem('bricksNotifications') !== '0';
+            } catch (e) {
+                console.warn('Não foi possível ler as preferências no localStorage:', e);
+            }
+            aplicarIdioma(langSalvo);
+            setEl('soundToggle', el => el.checked = somSalvo);
+            setEl('notificationsToggle', el => el.checked = notifSalvo);
+            alternarAnimacoes(animSalvo);
+            alternarModoEscuro(escuroSalvo, false);
+        };
+    </script>
+</body>
+</html>
