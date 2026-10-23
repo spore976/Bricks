@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<!-- saved from url=(0071)file:///C:/Users/sousa/Documents/Codex/2026-10-23/me/outputs/index.html -->
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bricks! - Portal Clássico</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #333333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        /* Barra Superior Clássica do Roblox */
+        .top-bar {
+            background-color: #c90000;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 3px solid #800000;
+        }
+        .header-logo {
+            max-height: 35px;
+            margin-right: 20px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: none;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Container Principal */
+        .main-wrapper {
+            max-width: 950px;
+            margin: 25px auto;
+            background-color: #e3e3e3;
+            border: 1px solid #b5b5b5;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        /* Banner de Aviso */
+        .welcome-banner {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 3px;
+        }
+        .version-tag {
+            background-color: #ffe8a1;
+            padding: 2px 6px;
+            font-weight: bold;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+
+        /* Abas de Conteúdo */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Layout da Home (Grid) */
+        .home-grid {
+            display: flex;
+            gap: 20px;
+        }
+        .left-column {
+            flex: 2;
+        }
+        .right-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card do Jogo */
+        .game-card {
+            background: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .game-header {
+            display: flex;
+            gap: 15px;
+        }
+        .game-thumbnail {
+            width: 260px;
+            height: 140px;
+            background: linear-gradient(135deg, #0055ff, #002b80);
+            border: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .game-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.3em;
+            color: #111;
+        }
+        .game-info p {
+            margin: 5px 0;
+            font-size: 0.85em;
+            color: #555;
+            line-height: 1.4;
+        }
+        .game-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Botões Estilizados */
+        .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .btn-play {
+            background-color: #00aa00;
+            color: white;
+            box-shadow: 0px 3px 0px #006600;
+            flex: 1.5;
+        }
+        .btn-download {
+            background-color: #0055cc;
+            color: white;
+            box-shadow: 0px 3px 0px #003380;
+            flex: 1;
+            font-size: 0.9em;
+        }
+        .btn-save {
+            background-color: #00aa00;
+            color: white;
+            box-shadow: 0px 3px 0px #006600;
+        }
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: none;
+        }
+
+        /* Widgets Laterais */
+        .widget {
+            background: #ffffff;
+            border: 1px solid #cccccc;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .widget-title {
+            font-weight: bold;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .widget-title a {
+            font-size: 0.8em;
+            color: #0055cc;
+            text-decoration: none;
+        }
+        .avatar-preview-mini {
+            text-align: center;
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .mini-char {
+            display: inline-block;
+            width: 30px;
+        }
+        .mini-head { width: 20px; height: 20px; background: #ffff00; border: 1px solid #333; border-radius: 50%; margin: 0 auto 2px; }
+        .mini-torso { width: 26px; height: 26px; background: #cc0000; border: 1px solid #333; margin: 0 auto; }
+        .mini-legs { width: 26px; height: 20px; background: #009900; border: 1px solid #333; margin: 2px auto 0; }
+
+        /* Aba de Customização de Avatar (Estilo Foto 2) */
+        .customizer-layout {
+            display: flex;
+            gap: 20px;
+            background: #ffffff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .customizer-left {
+            flex: 1;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .customizer-right {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .color-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        .color-row label {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #333;
+        }
+        .presets-box {
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .preset-btn {
+            background: #e0e0e0;
+            border: 1px solid #adadad;
+            padding: 5px 10px;
+            font-size: 0.8em;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        .preset-btn:hover { background: #d0d0d0; }
+
+        /* Desenho do Boneco Grande na Customização */
+        .char-model-large {
+            display: inline-block;
+            margin: 15px auto;
+        }
+        .char-head-l { width: 50px; height: 50px; background: #ffff00; border-radius: 50%; margin: 0 auto 4px; border: 2px solid #333; position: relative; }
+        .char-head-l::after { content: "‿"; position: absolute; top: 11px; left: 14px; font-size: 20px; font-weight: bold; }
+        .char-mid-l { display: flex; justify-content: center; gap: 4px; }
+        .char-arm-l { width: 24px; height: 70px; background: #ffff00; border: 2px solid #333; border-radius: 3px; }
+        .char-torso-l { width: 56px; height: 70px; background: #cc0000; border: 2px solid #333; border-radius: 3px; }
+        .char-legs-l { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
+        .char-leg-l { width: 26px; height: 70px; background: #009900; border: 2px solid #333; border-radius: 3px; }
+
+        /* Configurações e tema escuro */
+        body.dark-mode { background-color: #090d14; color: #e5e7eb; }
+        body.dark-mode .main-wrapper { background-color: #1b2330; border-color: #344154; }
+        body.dark-mode .game-card, body.dark-mode .widget, body.dark-mode .customizer-layout,
+        body.dark-mode .customizer-left { background-color: #242f3f; border-color: #3b485b; color: #e5e7eb; }
+        body.dark-mode .game-info h2, body.dark-mode h2, body.dark-mode .color-row label,
+        body.dark-mode .widget-title { color: #f3f4f6 !important; }
+        body.dark-mode .game-info p, body.dark-mode .customizer-left p,
+        body.dark-mode .color-row, body.dark-mode .presets-box span { color: #cbd5e1 !important; }
+        body.dark-mode .color-row, body.dark-mode .avatar-preview-box,
+        body.dark-mode .avatar-preview-mini { background-color: #1b2330 !important; border-color: #3b485b !important; }
+        body.dark-mode .widget-title { border-color: #3b485b; }
+        .settings-panel { max-width: 650px; background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 20px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #eee; }
+        .setting-row:last-child { border-bottom: 0; }
+        .setting-row label { font-weight: bold; }
+        body.dark-mode .settings-panel { background: #242f3f; color: #e5e7eb; border-color: #3b485b; }
+        body.dark-mode .setting-row { border-color: #3b485b; }
+        @media (max-width: 700px) {
+            .main-wrapper { margin: 12px; padding: 14px; }
+            .home-grid, .game-header, .customizer-layout { flex-direction: column; }
+            .game-thumbnail { width: auto; }
+            .top-bar { flex-wrap: wrap; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra Superior Clássica do Roblox -->
+    <div class="top-bar">
+        <img src="file:///C:/Users/sousa/Documents/Codex/2026-10-23/me/outputs/logo.png" alt="Bricks!" class="header-logo">
+        <div class="nav-links">
+            <button class="nav-link active" onclick="mudarAba(event, 'home-tab')">Games</button>
+            <button class="nav-link" onclick="mudarAba(event, 'avatar-tab')">Catalog &amp; Avatar</button>
+            <button class="nav-link" onclick="mudarAba(event, 'settings-tab')">Settings</button>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+
+        <!-- Banner de Boas-vindas -->
+        <div class="welcome-banner">
+            <span><strong>Welcome to Bricks! (Classic Era Portal)</strong> — Launch the Godot client directly from your browser.</span>
+            <span class="version-tag">v1.0.0</span>
+        </div>
+
+        <!-- ================= ABA 1: GAMES (HOME) ================= -->
+        <div id="home-tab" class="tab-content active">
+            <div class="home-grid">
+                
+                <!-- Coluna Esquerda: Jogo Principal -->
+                <div class="left-column">
+                    <div class="game-card">
+                        <div class="game-header">
+                            <div class="game-thumbnail">
+                                <span style="font-size: 2.2em;">🧱</span>
+                                <span style="font-size: 1.1em; margin-top: 5px;">CLASSIC OBBY</span>
+                                <span style="font-size: 0.75em; opacity: 0.8;">By Spore</span>
+                            </div>
+                            <div class="game-info">
+                                <h2>Classic Obby World</h2>
+                                <p><strong>Created:</strong> 10/2026 | <strong>Genre:</strong> Adventure | <strong>Visited:</strong> 1,337 times</p>
+                                <p>Relive the classic era of block building and obbies! Dodge kill blocks, reach checkpoints, and build structures using classic toolbar items.</p>
+                            </div>
+                        </div>
+                        <div class="game-actions">
+                            <a href="bricks://launch?head=%23ffff00&amp;torso=%23cc0000&amp;la=%23ffff00&amp;ra=%23ffff00&amp;ll=%23009900&amp;rl=%23009900" id="playButton" class="btn btn-play">▶ PLAY IN APP</a>
+                            <a href="https://github.com/spore976/Bricks/releases/download/Version_0.2/Bricks_Setup_v0.15.exe" class="btn btn-download">💾 Download Client</a>
+                        </div>
+                    </div>
+
+                    <!-- Atualizações do Jogo -->
+                    <div class="widget">
+                        <div class="widget-title">Game Updates</div>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 0.85em; color: #444; line-height: 1.5;">
+                            <li>Added custom browser URI protocol handling (<code>bricks://</code>).</li>
+                            <li>Real-time Avatar customization synchronization with Godot engine.</li>
+                            <li>Classic Obby blocks &amp; KillBlock scripts configured.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Meu Personagem & Info -->
+                <div class="right-column">
+                    <div class="widget">
+                        <div class="widget-title">
+                            My Character
+                            <a href="file:///C:/Users/sousa/Documents/Codex/2026-10-23/me/outputs/index.html#" onclick="mudarAba(event, 'avatar-tab')">Edit</a>
+                        </div>
+                        <div class="avatar-preview-box" style="display: flex; align-items: center; gap: 15px; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <div class="mini-char">
+                                <div id="miniHead" class="mini-head" style="background-color: rgb(255, 255, 0);"></div>
+                                <div class="mini-torso" id="miniTorso" style="background-color: rgb(204, 0, 0);"></div>
+                                <div class="mini-legs" id="miniLegs" style="background-color: rgb(0, 153, 0);"></div>
+                            </div>
+                            <div style="font-size: 0.85em;">
+                                <span style="color: #00aa00; font-weight: bold;">● Status: Online</span><br>
+                                <span style="color: #555;">Avatar Sync: <b>Active</b></span><br>
+                                <button onclick="mudarAba(event, 'avatar-tab')" class="preset-btn" style="margin-top: 5px;">Customize Color</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="widget">
+                        <div class="widget-title">Client Connection Info</div>
+                        <p style="font-size: 0.8em; color: #666; margin: 0 0 8px 0;">Clicking <b>PLAY</b> uses protocol scheme:</p>
+                        <code id="protocolPreview" style="display: block; background: #eee; padding: 6px; font-size: 0.7em; word-break: break-all; border: 1px solid #ccc; border-radius: 3px;">bricks://launch?head=%23ffff00&amp;torso=%23cc0000&amp;la=%23ffff00&amp;ra=%23ffff00&amp;ll=%23009900&amp;rl=%23009900</code>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= ABA 2: CATALOG & AVATAR ================= -->
+        <div id="avatar-tab" class="tab-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div>
+                    <h2 style="margin: 0; color: #111; font-size: 1.4em;">Character Customization</h2>
+                    <p style="margin: 3px 0 0 0; font-size: 0.85em; color: #666;">Change your body colors to sync with the in-game classic avatar.</p>
+                </div>
+                <button class="btn btn-save" onclick="salvarCoresAvatar()">Save Avatar Colors</button>
+            </div>
+
+            <div class="customizer-layout">
+                <!-- Esquerda: Prévia em tempo real -->
+                <div class="customizer-left">
+                    <span style="font-weight: bold; font-size: 0.85em; color: #555; text-transform: uppercase; letter-spacing: 1px;">Live Preview</span>
+                    <div>
+                        <div class="char-model-large">
+                            <div id="previewHeadL" class="char-head-l" style="background-color: rgb(255, 255, 0);"></div>
+                            <div class="char-mid-l">
+                                <div id="previewLeftArmL" class="char-arm-l" style="background-color: rgb(255, 255, 0);"></div>
+                                <div id="previewTorsoL" class="char-torso-l" style="background-color: rgb(204, 0, 0);"></div>
+                                <div id="previewRightArmL" class="char-arm-l" style="background-color: rgb(255, 255, 0);"></div>
+                            </div>
+                            <div class="char-legs-l">
+                                <div id="previewLeftLegL" class="char-leg-l" style="background-color: rgb(0, 153, 0);"></div>
+                                <div id="previewRightLegL" class="char-leg-l" style="background-color: rgb(0, 153, 0);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.75em; color: #666; margin: 5px 0 0 0;">Changes appear immediately in-game when launching from the portal.</p>
+                </div>
+
+                <!-- Direita: Seletores de Cores e Presets -->
+                <div class="customizer-right">
+                    <div style="font-weight: bold; font-size: 0.95em; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 5px;">Body Part Colors</div>
+                    
+                    <div class="color-row">
+                        <label for="headColor">Head Color:</label>
+                        <input type="color" id="headColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="torsoColor">Torso Color:</label>
+                        <input type="color" id="torsoColor" value="#cc0000" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="leftArmColor">Left Arm Color:</label>
+                        <input type="color" id="leftArmColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="rightArmColor">Right Arm Color:</label>
+                        <input type="color" id="rightArmColor" value="#ffff00" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="leftLegColor">Left Leg Color:</label>
+                        <input type="color" id="leftLegColor" value="#009900" oninput="atualizarCoresSite()">
+                    </div>
+                    <div class="color-row">
+                        <label for="rightLegColor">Right Leg Color:</label>
+                        <input type="color" id="rightLegColor" value="#009900" oninput="atualizarCoresSite()">
+                    </div>
+
+                    <div class="presets-box">
+                        <span style="font-size: 0.85em; font-weight: bold; color: #444; display: block; margin-bottom: 5px;">Classic Palette Presets:</span>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffff00', '#cc0000', '#ffff00', '#ffff00', '#009900', '#009900')">2006 Classic</button>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffcc00', '#0066cc', '#ffcc00', '#ffcc00', '#222222', '#222222')">Blue Casual</button>
+                        <button class="preset-btn" onclick="aplicarPreset('#ffeedd', '#2e7d32', '#ffeedd', '#ffeedd', '#1565c0', '#1565c0')">Green Outdoor</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settings-tab" class="tab-content">
+            <h2 style="margin-top: 0; color: #111;">Settings</h2>
+            <p style="color: #666;">Choose how the portal looks and which language it uses.</p>
+            <div class="settings-panel">
+                <div class="setting-row">
+                    <div><label for="languageSetting">Language</label><div style="font-size:.85em;color:#777;margin-top:4px">Portal display language</div></div>
+                    <select id="languageSetting" onchange="saveSettings()">
+                        <option value="en">English</option><option value="pt-BR">Português (Brasil)</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <div><label for="darkModeSetting">Dark mode</label><div style="font-size:.85em;color:#777;margin-top:4px">Use a darker color scheme</div></div>
+                    <input id="darkModeSetting" type="checkbox" onchange="saveSettings()" aria-label="Enable dark mode">
+                </div>
+                <p id="settingsSaved" role="status" style="font-size:.85em;color:#16803c;margin-bottom:0"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Abas
+        function mudarAba(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            const navButton = document.querySelector(`.nav-link[onclick*="${tabId}"]`);
+            if (navButton) navButton.classList.add('active');
+        }
+
+        // Atualizar cores da prévia e do protocolo em tempo real
+        function atualizarCoresSite() {
+            const h = document.getElementById('headColor').value;
+            const t = document.getElementById('torsoColor').value;
+            const la = document.getElementById('leftArmColor').value;
+            const ra = document.getElementById('rightArmColor').value;
+            const ll = document.getElementById('leftLegColor').value;
+            const rl = document.getElementById('rightLegColor').value;
+
+            // Atualiza prévia grande
+            document.getElementById('previewHeadL').style.backgroundColor = h;
+            document.getElementById('previewTorsoL').style.backgroundColor = t;
+            document.getElementById('previewLeftArmL').style.backgroundColor = la;
+            document.getElementById('previewRightArmL').style.backgroundColor = ra;
+            document.getElementById('previewLeftLegL').style.backgroundColor = ll;
+            document.getElementById('previewRightLegL').style.backgroundColor = rl;
+
+            // Atualiza prévia miniatura (Home)
+            document.getElementById('miniHead').style.backgroundColor = h;
+            document.getElementById('miniTorso').style.backgroundColor = t;
+            document.getElementById('miniLegs').style.backgroundColor = ll;
+
+            // Atualiza o link do protocolo PLAY
+            const urlProtocolo = `bricks://launch?head=${encodeURIComponent(h)}&torso=${encodeURIComponent(t)}&la=${encodeURIComponent(la)}&ra=${encodeURIComponent(ra)}&ll=${encodeURIComponent(ll)}&rl=${encodeURIComponent(rl)}`;
+            document.getElementById('playButton').href = urlProtocolo;
+            document.getElementById('protocolPreview').innerText = urlProtocolo;
+        }
+
+        // Aplicar Presets rápidos
+        function aplicarPreset(h, t, la, ra, ll, rl) {
+            document.getElementById('headColor').value = h;
+            document.getElementById('torsoColor').value = t;
+            document.getElementById('leftArmColor').value = la;
+            document.getElementById('rightArmColor').value = ra;
+            document.getElementById('leftLegColor').value = ll;
+            document.getElementById('rightLegColor').value = rl;
+            atualizarCoresSite();
+        }
+
+        // Salvar no navegador
+        function salvarCoresAvatar() {
+            localStorage.setItem('headColor', document.getElementById('headColor').value);
+            localStorage.setItem('torsoColor', document.getElementById('torsoColor').value);
+            localStorage.setItem('leftArmColor', document.getElementById('leftArmColor').value);
+            localStorage.setItem('rightArmColor', document.getElementById('rightArmColor').value);
+            localStorage.setItem('leftLegColor', document.getElementById('leftLegColor').value);
+            localStorage.setItem('rightLegColor', document.getElementById('rightLegColor').value);
+            
+            atualizarCoresSite();
+            alert("Avatar colors saved successfully! Ready to launch in-game.");
+        }
+
+        function saveSettings() {
+            const language = document.getElementById('languageSetting').value;
+            const darkMode = document.getElementById('darkModeSetting').checked;
+            localStorage.setItem('portalLanguage', language);
+            localStorage.setItem('portalDarkMode', String(darkMode));
+            document.body.classList.toggle('dark-mode', darkMode);
+            document.getElementById('settingsSaved').textContent = language === 'pt-BR' ? 'Configurações salvas neste navegador.' : 'Settings saved in this browser.';
+        }
+
+        // Carregar preferências e avatar ao iniciar a página
+        window.onload = function() {
+            const savedLanguage = localStorage.getItem('portalLanguage') || 'en';
+            const savedDarkMode = localStorage.getItem('portalDarkMode') === 'true';
+            document.getElementById('languageSetting').value = savedLanguage;
+            document.getElementById('darkModeSetting').checked = savedDarkMode;
+            document.body.classList.toggle('dark-mode', savedDarkMode);
+            if(localStorage.getItem('headColor')) document.getElementById('headColor').value = localStorage.getItem('headColor');
+            if(localStorage.getItem('torsoColor')) document.getElementById('torsoColor').value = localStorage.getItem('torsoColor');
+            if(localStorage.getItem('leftArmColor')) document.getElementById('leftArmColor').value = localStorage.getItem('leftArmColor');
+            if(localStorage.getItem('rightArmColor')) document.getElementById('rightArmColor').value = localStorage.getItem('rightArmColor');
+            if(localStorage.getItem('leftLegColor')) document.getElementById('leftLegColor').value = localStorage.getItem('leftLegColor');
+            if(localStorage.getItem('rightLegColor')) document.getElementById('rightLegColor').value = localStorage.getItem('rightLegColor');
+
+            atualizarCoresSite();
+        };
+    </script>
+
+</body></html>
